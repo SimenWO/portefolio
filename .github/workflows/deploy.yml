@@ -1,0 +1,37 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+# Functionality:
+# 1. Check out code
+# 2. Setup Flutter
+# 3. Build Web App
+# 4. Deploy to gh-pages branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - run: flutter pub get
+
+      # Build the app.
+      # IMPORTANT: If your repo is at https://github.com/user/repo,
+      # you usually need: --base-href "/repo/"
+      # We attempt to detect the repo name, but for a user.github.io repo, use "/"
+      - name: Build Web
+        run: flutter build web --release --base-href "/$(basename $GITHUB_REPOSITORY)/"
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
