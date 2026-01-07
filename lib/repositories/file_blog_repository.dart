@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:markdown/markdown.dart';
 import 'package:yaml/yaml.dart';
@@ -8,15 +7,12 @@ import 'package:portifolio/repositories/blog_repository.dart';
 class FileBlogRepository implements BlogRepository {
   @override
   Future<List<BlogPost>> getBlogPosts() async {
-    String manifestContent;
-    try {
-      manifestContent = await rootBundle.loadString('AssetManifest.bin.json');
-    } catch (_) {
-      manifestContent = await rootBundle.loadString('AssetManifest.json');
-    }
-    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+    final AssetManifest assetManifest = await AssetManifest.loadFromAssetBundle(
+      rootBundle,
+    );
+    final List<String> assets = assetManifest.listAssets();
 
-    final postPaths = manifestMap.keys
+    final postPaths = assets
         .where(
           (String key) =>
               key.startsWith('assets/posts/') && key.endsWith('.md'),
