@@ -31,7 +31,7 @@ jobs:
       # you usually need: --base-href "/repo/"
       # We attempt to detect the repo name, but for a user.github.io repo, use "/"
       - name: Build Web
-        run: flutter build web --release --base-href "/$(basename $GITHUB_REPOSITORY)/"
+        run: flutter build web --release --base-href "/portefolio/"
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
