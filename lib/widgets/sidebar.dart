@@ -125,7 +125,7 @@ class Sidebar extends StatelessWidget {
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
-                image: AssetImage('images/profile.png'),
+                image: AssetImage('assets/images/profile.png'),
                 fit: BoxFit.cover,
               ),
             ),

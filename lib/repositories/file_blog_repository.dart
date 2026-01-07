@@ -8,7 +8,12 @@ import 'package:portifolio/repositories/blog_repository.dart';
 class FileBlogRepository implements BlogRepository {
   @override
   Future<List<BlogPost>> getBlogPosts() async {
-    final manifestContent = await rootBundle.loadString('AssetManifest.json');
+    String manifestContent;
+    try {
+      manifestContent = await rootBundle.loadString('AssetManifest.bin.json');
+    } catch (_) {
+      manifestContent = await rootBundle.loadString('AssetManifest.json');
+    }
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
     final postPaths = manifestMap.keys
