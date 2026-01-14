@@ -13,47 +13,59 @@ class AboutScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
       ),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Bio Section
-            Text(
-              'About Me',
-              style: GoogleFonts.outfit(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'I am a Cloud and DevOps Engineer with extensive experience in the Azure ecosystem. I specialize in building scalable cloud infrastructures, automating deployment pipelines, and securing cloud environments.',
-              style: GoogleFonts.outfit(
-                fontSize: 16,
-                height: 1.6,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.8),
-              ),
-            ),
-            const SizedBox(height: 60),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final availableWidth = constraints.maxWidth;
 
-            // Certifications Section
-            Text(
-              'Certifications',
-              style: GoogleFonts.outfit(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(32.0),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1600),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Bio Section
+                    Text(
+                      'About Me',
+                      style: GoogleFonts.outfit(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'I am a Cloud and DevOps Engineer with extensive experience in the Azure ecosystem. I specialize in building scalable cloud infrastructures, automating deployment pipelines, and securing cloud environments.',
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        height: 1.6,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.8),
+                      ),
+                    ),
+                    const SizedBox(height: 60),
+
+                    // Certifications Section
+                    Text(
+                      'Certifications',
+                      style: GoogleFonts.outfit(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    _buildCertificationsGrid(context, availableWidth),
+                    const SizedBox(height: 40),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 24),
-            _buildCertificationsGrid(context),
-            const SizedBox(height: 40),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -62,9 +74,15 @@ class AboutScreen extends StatelessWidget {
     return Container(); // Unused
   }
 
-  Widget _buildCertificationsGrid(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final crossAxisCount = width < 700 ? 1 : 2;
+  Widget _buildCertificationsGrid(BuildContext context, double width) {
+    int crossAxisCount;
+    if (width >= 1100) {
+      crossAxisCount = 3;
+    } else if (width >= 700) {
+      crossAxisCount = 2;
+    } else {
+      crossAxisCount = 1;
+    }
 
     final certifications = [
       {

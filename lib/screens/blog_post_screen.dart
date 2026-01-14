@@ -14,54 +14,57 @@ class BlogPostContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: CustomScrollView(
-            slivers: [
-              // Custom app bar with image
-              SliverAppBar(
-                expandedHeight: 400,
-                pinned: true,
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                surfaceTintColor:
-                    Colors.transparent, // Disable purple tint on scroll
-                leading: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: onBack,
-                    ),
-                  ),
+      body: CustomScrollView(
+        slivers: [
+          // Custom app bar with image - Full Width
+          SliverAppBar(
+            expandedHeight: 400,
+            pinned: true,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            surfaceTintColor:
+                Colors.transparent, // Disable purple tint on scroll
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  shape: BoxShape.circle,
                 ),
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.network(post.imageUrl, fit: BoxFit.cover),
-                      // Gradient overlay for better text contrast if needed (though title is below)
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black.withValues(alpha: 0.3),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: onBack,
                 ),
               ),
-              SliverToBoxAdapter(
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(post.imageUrl, fit: BoxFit.cover),
+                  // Gradient overlay for better text contrast if needed (though title is below)
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.3),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Body Content - Constrained to 800px
+          SliverToBoxAdapter(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
                 child: Padding(
                   padding: const EdgeInsets.all(32.0),
                   child: Column(
@@ -100,7 +103,6 @@ class BlogPostContent extends StatelessWidget {
                         }).toList(),
                       ),
                       const SizedBox(height: 24),
-
                       // Title
                       Text(
                         post.title,
@@ -112,7 +114,6 @@ class BlogPostContent extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
-
                       // Author Row
                       Row(
                         children: [
@@ -153,7 +154,6 @@ class BlogPostContent extends StatelessWidget {
                         ).colorScheme.onSurface.withValues(alpha: 0.1),
                       ),
                       const SizedBox(height: 40),
-
                       // HTML Content with Typography
                       HtmlWidget(
                         post.content,
@@ -206,9 +206,9 @@ class BlogPostContent extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

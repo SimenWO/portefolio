@@ -19,115 +19,150 @@ class DashboardContent extends StatelessWidget {
         color: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome Back',
-              style: GoogleFonts.outfit(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Here is what\'s happening in your world.',
-              style: GoogleFonts.outfit(
-                fontSize: 16,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            const SizedBox(height: 32),
-            FutureBuilder<List<BlogPost>>(
-              future: Provider.of<BlogRepository>(
-                context,
-                listen: false,
-              ).getBlogPosts(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                final posts = snapshot.data ?? [];
+        padding: const EdgeInsets.all(32.0),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1600),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final availableWidth = constraints.maxWidth;
 
-                // Determine column count based on width
-                final width = MediaQuery.of(context).size.width;
-                // Use 2 columns on mobile to allow 50% width items (like stats),
-                // but extend larger items to full width.
-                final crossAxisCount = width < 900 ? 2 : 4;
-                final isMobile = width < 600;
-                final isTablet = width >= 600 && width < 900;
-
-                // Bento Grid Layout
-                return StaggeredGrid.count(
-                  crossAxisCount: crossAxisCount,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Large Featured Item
-                    if (posts.isNotEmpty)
-                      StaggeredGridTile.count(
-                        crossAxisCellCount: isMobile || isTablet ? 2 : 2,
-                        // On mobile/tablet, make it rectangular (1.2) instead of square (2.0)
-                        // so it doesn't take up the huge vertical space.
-                        mainAxisCellCount: isMobile || isTablet ? 1.2 : 2,
-                        child: _buildFeaturedCard(context, posts[0]),
-                      ),
-
-                    // Medium Items
-                    if (posts.length > 1)
-                      StaggeredGridTile.count(
-                        // Full width on mobile, half width on tablet/desktop
-                        crossAxisCellCount: isMobile ? 2 : (isTablet ? 1 : 2),
-                        mainAxisCellCount: 1,
-                        child: _buildPostCard(context, posts[1]),
-                      ),
-                    if (posts.length > 2)
-                      StaggeredGridTile.count(
-                        crossAxisCellCount: isMobile ? 2 : 1,
-                        mainAxisCellCount: 1,
-                        child: _buildPostCard(context, posts[2]),
-                      ),
-                    if (posts.length > 3)
-                      StaggeredGridTile.count(
-                        crossAxisCellCount: isMobile ? 2 : 1,
-                        mainAxisCellCount: 1,
-                        child: _buildPostCard(context, posts[3]),
-                      ),
-
-                    // Skill/Stat Cards
-                    StaggeredGridTile.count(
-                      // Always take 1 cell (so on mobile = 50% width)
-                      crossAxisCellCount: 1,
-                      mainAxisCellCount: 1,
-                      child: _buildStatCard(
-                        'Blog Posts',
-                        posts.length.toString(),
-                        Colors.blueAccent,
-                        context,
+                    Text(
+                      'Welcome Back',
+                      style: GoogleFonts.outfit(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                    StaggeredGridTile.count(
-                      crossAxisCellCount: 1,
-                      mainAxisCellCount: 1,
-                      child: _buildStatCard(
-                        'Experience',
-                        '5 Years',
-                        Colors.purpleAccent,
-                        context,
+                    const SizedBox(height: 8),
+                    Text(
+                      'Here is what\'s happening in your world.',
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
+                    ),
+                    const SizedBox(height: 32),
+                    FutureBuilder<List<BlogPost>>(
+                      future: Provider.of<BlogRepository>(
+                        context,
+                        listen: false,
+                      ).getBlogPosts(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        }
+                        final posts = snapshot.data ?? [];
+
+                        // Determine column count based on available width
+                        // < 600: Mobile (2 cols)
+                        // 600 - 900: Tablet (2 cols)
+                        // 900 - 1600: Desktop (4 cols)
+                        // > 1600: Large Desktop (5 cols)
+                        int crossAxisCount;
+                        if (availableWidth >= 1600) {
+                          crossAxisCount = 5;
+                        } else if (availableWidth >= 900) {
+                          crossAxisCount = 4;
+                        } else {
+                          crossAxisCount = 2;
+                        }
+
+                        final isMobile = availableWidth < 600;
+                        final isTablet =
+                            availableWidth >= 600 && availableWidth < 900;
+                        final isLargeDesktop = availableWidth >= 1600;
+
+                        // Bento Grid Layout
+                        return StaggeredGrid.count(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          children: [
+                            // Large Featured Item
+                            if (posts.isNotEmpty)
+                              StaggeredGridTile.count(
+                                crossAxisCellCount: isMobile || isTablet
+                                    ? 2
+                                    : 2,
+                                // On mobile/tablet, make it rectangular (1.2) instead of square (2.0)
+                                // so it doesn't take up the huge vertical space.
+                                mainAxisCellCount: isMobile || isTablet
+                                    ? 1.2
+                                    : 2,
+                                child: _buildFeaturedCard(context, posts[0]),
+                              ),
+
+                            // Medium Items
+                            if (posts.length > 1)
+                              StaggeredGridTile.count(
+                                // Full width on mobile, half width on tablet/desktop
+                                crossAxisCellCount: isMobile
+                                    ? 2
+                                    : (isTablet ? 1 : (isLargeDesktop ? 1 : 2)),
+                                mainAxisCellCount: 1,
+                                child: _buildPostCard(context, posts[1]),
+                              ),
+                            if (posts.length > 2)
+                              StaggeredGridTile.count(
+                                crossAxisCellCount: isMobile ? 2 : 1,
+                                mainAxisCellCount: 1,
+                                child: _buildPostCard(context, posts[2]),
+                              ),
+                            if (posts.length > 3)
+                              StaggeredGridTile.count(
+                                crossAxisCellCount: isMobile ? 2 : 1,
+                                mainAxisCellCount: 1,
+                                child: _buildPostCard(context, posts[3]),
+                              ),
+
+                            // Make sure stats fit nicely
+                            // Skill/Stat Cards
+                            StaggeredGridTile.count(
+                              // Always take 1 cell (so on mobile = 50% width)
+                              crossAxisCellCount: 1,
+                              mainAxisCellCount: 1,
+                              child: _buildStatCard(
+                                'Blog Posts',
+                                posts.length.toString(),
+                                Colors.blueAccent,
+                                context,
+                              ),
+                            ),
+                            StaggeredGridTile.count(
+                              crossAxisCellCount: 1,
+                              mainAxisCellCount: 1,
+                              child: _buildStatCard(
+                                'Experience',
+                                '5 Years',
+                                Colors.purpleAccent,
+                                context,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 );
               },
             ),
-          ],
+          ),
         ),
       ),
     );

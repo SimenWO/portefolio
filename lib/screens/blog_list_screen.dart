@@ -83,10 +83,11 @@ class _BlogListScreenState extends State<BlogListScreen> {
         color: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Center(
+        padding: const EdgeInsets.all(32.0),
+        child: Align(
+          alignment: Alignment.topCenter,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1100),
+            constraints: const BoxConstraints(maxWidth: 1200),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
