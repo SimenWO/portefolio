@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-class GlassCard extends StatelessWidget {
+class GlassCard extends StatefulWidget {
   final Widget child;
   final double blur;
   final double opacity;
@@ -24,53 +24,73 @@ class GlassCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<GlassCard> createState() => _GlassCardState();
+}
+
+class _GlassCardState extends State<GlassCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
     final BorderRadius effectiveBorderRadius =
-        borderRadius ?? BorderRadius.circular(16.0);
+        widget.borderRadius ?? BorderRadius.circular(16.0);
+    final bool isClickable = widget.onTap != null;
 
-    Widget cardContent = Container(
-      margin: margin,
-      decoration: BoxDecoration(
-        borderRadius: effectiveBorderRadius,
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.6),
-          width: 1.5,
-        ),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withValues(alpha: opacity),
-            color.withValues(alpha: opacity * 0.5),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 16,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: effectiveBorderRadius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: Padding(
-            padding: padding ?? const EdgeInsets.all(16.0),
-            child: child,
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: isClickable ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          scale: _isHovered && isClickable ? 1.02 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            margin: widget.margin,
+            decoration: BoxDecoration(
+              borderRadius: effectiveBorderRadius,
+              border: Border.all(
+                color: Colors.white.withValues(
+                  alpha: _isHovered && isClickable ? 0.9 : 0.6,
+                ),
+                width: 1.5,
+              ),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  widget.color.withValues(alpha: widget.opacity),
+                  widget.color.withValues(alpha: widget.opacity * 0.5),
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(
+                    alpha: _isHovered && isClickable ? 0.2 : 0.1,
+                  ),
+                  blurRadius: _isHovered && isClickable ? 25 : 16,
+                  spreadRadius: _isHovered && isClickable ? 4 : 2,
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: effectiveBorderRadius,
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: widget.blur,
+                  sigmaY: widget.blur,
+                ),
+                child: Padding(
+                  padding: widget.padding ?? const EdgeInsets.all(16.0),
+                  child: widget.child,
+                ),
+              ),
+            ),
           ),
         ),
       ),
     );
-
-    if (onTap != null) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(onTap: onTap, child: cardContent),
-      );
-    }
-
-    return cardContent;
   }
 }

@@ -55,25 +55,28 @@ class Sidebar extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Column(
                             children: [
-                              _buildNavItem(
-                                context,
+                              _SidebarNavItem(
                                 index: 0,
                                 icon: FontAwesomeIcons.house,
                                 label: 'Home',
+                                selectedIndex: selectedIndex,
+                                onDestinationSelected: onDestinationSelected,
                               ),
                               const SizedBox(height: 8),
-                              _buildNavItem(
-                                context,
+                              _SidebarNavItem(
                                 index: 1,
                                 icon: FontAwesomeIcons.penNib,
                                 label: 'Blog',
+                                selectedIndex: selectedIndex,
+                                onDestinationSelected: onDestinationSelected,
                               ),
                               const SizedBox(height: 8),
-                              _buildNavItem(
-                                context,
+                              _SidebarNavItem(
                                 index: 2,
                                 icon: FontAwesomeIcons.user,
                                 label: 'About',
+                                selectedIndex: selectedIndex,
+                                onDestinationSelected: onDestinationSelected,
                               ),
                             ],
                           ),
@@ -155,89 +158,6 @@ class Sidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(
-    BuildContext context, {
-    required int index,
-    required IconData icon,
-    required String label,
-  }) {
-    final isSelected = selectedIndex == index;
-
-    return RepaintBoundary(
-      // Optimize animations
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).primaryColor.withValues(alpha: 0.15)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          child: InkWell(
-            onTap: () => onDestinationSelected(index),
-            borderRadius: BorderRadius.circular(16),
-            hoverColor: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.05),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Row(
-                children: [
-                  FaIcon(
-                    icon,
-                    size: 20,
-                    color: isSelected
-                        ? Theme.of(context).primaryColor
-                        : Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    label,
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.onSurface
-                          : Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                  const Spacer(),
-                  if (isSelected)
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.secondary.withValues(alpha: 0.5),
-                            blurRadius: 6,
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildSocialSection(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -279,6 +199,116 @@ class Sidebar extends StatelessWidget {
       style: IconButton.styleFrom(
         hoverColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
         highlightColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+      ),
+    );
+  }
+}
+
+class _SidebarNavItem extends StatefulWidget {
+  final int index;
+  final IconData icon;
+  final String label;
+  final int selectedIndex;
+  final ValueChanged<int> onDestinationSelected;
+
+  const _SidebarNavItem({
+    required this.index,
+    required this.icon,
+    required this.label,
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+  });
+
+  @override
+  State<_SidebarNavItem> createState() => _SidebarNavItemState();
+}
+
+class _SidebarNavItemState extends State<_SidebarNavItem> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = widget.selectedIndex == widget.index;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        transform: Matrix4.translationValues(
+          _isHovered && !isSelected ? 4.0 : 0.0,
+          0,
+          0,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).primaryColor.withValues(alpha: 0.15)
+              : (_isHovered
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.05)
+                    : Colors.transparent),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            onTap: () => widget.onDestinationSelected(widget.index),
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                children: [
+                  FaIcon(
+                    widget.icon,
+                    size: 20,
+                    color: isSelected
+                        ? Theme.of(context).primaryColor
+                        : Theme.of(context).colorScheme.onSurface.withValues(
+                            alpha: _isHovered ? 0.9 : 0.6,
+                          ),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    widget.label,
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.onSurface.withValues(
+                              alpha: _isHovered ? 0.9 : 0.7,
+                            ),
+                    ),
+                  ),
+                  const Spacer(),
+                  if (isSelected)
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.secondary.withValues(alpha: 0.5),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
